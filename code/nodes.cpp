@@ -1,7 +1,4 @@
-#include<iostream>
- 
-using namespace std;
- 
+
 // A structure to represent a node in the adjacency list.
 struct node
 {
@@ -82,51 +79,11 @@ void InsertNode(Graph *G, int v1, int v2, int weight)
 		// If the head is null insert the node to the head.
 		G->vl[v1].vlisthead = newnode2;
 	}
-	else
+	else if(v1 != v2)
 	{
 		// Otherwise, add the node at the beginning.
 		newnode2->link = G->vl[v1].vlisthead;
 		G->vl[v1].vlisthead = newnode2;
 	}
 }
- 
 
-int main()
-{
-	int i, v, e, wt;
- 
-	// Take the input of the number of vertex and edges the graph have.
-	cout<<"Enter the number of vertexes of the graph: ";
-	cin>>v;
-	struct Graph *G = CreateGraph(v);
-	cout<<"\nEnter the number of edges of the graph: ";
-	cin>>e;
-	int edge[e][2];
- 
-	// Take the input of the adjacent vertex pairs of the given graph.
-	for(i = 0; i < e; i++)
-	{
-		cout<<"\nEnter the vertex pair for edge "<<i+1;
-		cout<<"\nV(1): ";
-		cin>>edge[i][0];
-		cout<<"V(2): ";
-		cin>>edge[i][1];
-		cout<<"Weight: ";
-		cin>> wt;
- 
-		InsertNode(G, edge[i][0], edge[i][1], wt);
-	}
- 
-	// Print the incidence list representation of the graph.
-	cout<<"\n\nThe incidence list representation for the given graph: ";
-	for(i = 0; i < v; i++)
-	{
-		cout<<"\n\tV("<<i+1<<") -> {  ";
-		while(G->vl[i+1].vlisthead != NULL)
-		{
-			cout<<G->vl[i+1].vlisthead->data<<"-"<<G->vl[i+1].vlisthead->weight << " ";
-			G->vl[i+1].vlisthead = G->vl[i+1].vlisthead->link;
-		}
-		cout<<"}";
-	}
-}
