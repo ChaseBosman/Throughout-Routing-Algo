@@ -1,5 +1,8 @@
 #include <iostream>
 #include "nodes.cpp"
+#include "node_structs.h"
+#include "routing.cpp"
+
 using namespace std;
  
 
@@ -62,6 +65,9 @@ int main()
 	InsertNode(G, 6, 7, 1);
 	InsertNode(G, 8, 8, 0);
 
+	dijkstra(G, 1);
+
+	cout << "\n\n";
 	cout<<"\nThe incidence list representation for the given graph: ";
 	for(int i = 0; i < NODES; i++)
 	{
