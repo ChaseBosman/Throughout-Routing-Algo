@@ -1,5 +1,6 @@
 #include <limits.h> 
 #include <iostream>
+#include <vector>
 #include "node_structs.h"
 
 
@@ -25,9 +26,27 @@ int minDistance(int dist[], bool sptSet[])
         } 
     } 
 
-  
     return min_index; 
 } 
+
+vector<int> reorder_sol(int index, int src, int shortest_path[], vector<int> &new_path, int arr_size)
+{
+	int size = arr_size;
+	if(shortest_path[index] == src)
+	{
+		new_path.push_back(shortest_path[index]);
+		return new_path;
+
+	}
+	else
+	{
+
+		new_path.push_back(shortest_path[index]);
+		reorder_sol(shortest_path[index], src, shortest_path, new_path, V);
+		return new_path;
+
+	}
+}
   
 // A utility function to print the constructed distance array 
 int printSolution(int dist[]) 
@@ -39,17 +58,28 @@ int printSolution(int dist[])
   
 // Function that implements Dijkstra's single source shortest path algorithm 
 // for a graph represented using adjacency matrix representation 
-void dijkstra(Graph *G, int src) 
+vector <vector <int> > dijkstra(Graph *G, int src, int *dist) 
 { 
-    int dist[V]; // The output array.  dist[i] will hold the shortest 
-    // distance from src to i 
-  
-    bool sptSet[V]; // sptSet[i] will be true if vertex i is included in shortest 
-    // path tree or shortest distance from src to i is finalized 
+
+	//dist arrays keep shortest and seccond shortest path distances to node n from src
+    //int dist[V]; 
+	//int short_path keeps track of next node to select in regards to shortest path
+  	int short_path[V]; 
+
+
+  	//2d vector to keep track of all chronological paths to node n
+  	vector <vector <int> > path(V);
+
+  	//sptSet keeps track of if src has a path through i 
+    bool sptSet[V]; 
+
   
     // Initialize all distances as INFINITE and stpSet[] as false 
     for (int i = 0; i < V; i++) 
-        dist[i] = INT_MAX, sptSet[i] = false; 
+    {
+        dist[i] = INT_MAX;
+        sptSet[i] = false; 
+    }
   
     // Distance of source vertex from itself is always 0 
     dist[src] = 0; 
@@ -65,17 +95,58 @@ void dijkstra(Graph *G, int src)
   		temp_head = G->vl[u].vlisthead;
         // Mark the picked vertex as processed 
         sptSet[u] = true; 
-  
         // Update dist value of the adjacent vertices of the picked vertex. 
         while(G->vl[u].vlisthead != NULL)
 		{
             // Update dist[v] only if is not in sptSet, there is an edge from 
             // u to v, and total weight of path from src to  v through u is 
             // smaller than current value of dist[v] 
-            if (!sptSet[ G->vl[u].vlisthead->data ]  &&  G->vl[ u ].vlisthead->weight  &&  dist[u] != INT_MAX 
-                &&  dist[u]  +  G->vl[ u].vlisthead->weight  <  dist[ G->vl[u].vlisthead->data ] ) 
+            if (!sptSet[ G->vl[u].vlisthead->data ]  &&  G->vl[ u ].vlisthead->weight  &&  dist[u] != INT_MAX) 
             {
-                dist[ G->vl[u].vlisthead->data ] = dist[u] + G->vl[ u ].vlisthead->weight; 
+            	//check if distance is less than current
+            	if(dist[u]  +  G->vl[ u].vlisthead->weight  <  dist[ G->vl[u].vlisthead->data ])
+            	{
+		            if(dist[(G->vl[ u ].vlisthead->data)] != INT_MAX)
+		            {
+		            	//destination's link != src so need to call function to find remaining
+		           		//adds current link and current link -1 to new_path and then appends remaining path to new_path
+		            	vector<int> new_path;
+		           		new_path.push_back(G->vl[ u ].vlisthead->data);
+		           		new_path.push_back(u);
+		           		short_path[G->vl[ u ].vlisthead->data] = u;
+		           		new_path = reorder_sol(u, src, short_path, new_path, V);
+						path[G->vl[ u ].vlisthead->data].swap(new_path);
+						for(int i = 0; i < path[G->vl[ u ].vlisthead->data].size(); i++)
+							cout << path[G->vl[ u ].vlisthead->data][i];
+						cout << "\n";
+		            }
+		            else
+		           	{
+		           		if(u != src)
+		           		{
+		           			//destination's link != src so need to call function to find remaining
+		           			//adds current link and current link -1 to new_path and then appends remaining path to new_path
+		           			vector<int> new_path;
+		           			new_path.push_back(G->vl[ u ].vlisthead->data);
+		           			new_path.push_back(u);
+		           			short_path[G->vl[ u ].vlisthead->data] = u;
+		           			new_path = reorder_sol(u, src, short_path, new_path, V);
+							path[G->vl[ u ].vlisthead->data].swap(new_path);
+
+							for(int i = 0; i < path[G->vl[ u ].vlisthead->data].size(); i++)
+								cout << path[G->vl[ u ].vlisthead->data][i];
+							cout << '\n';
+		           		}
+		           		else
+		           		{
+		           			short_path[G->vl[ u ].vlisthead->data] = u;
+		          			path[G->vl[ u ].vlisthead->data].push_back(G->vl[ u ].vlisthead->data);
+		            		path[G->vl[ u ].vlisthead->data].push_back(u);
+		            		cout << "init "<< u << " " << G->vl[ u ].vlisthead->data << "\n";
+		            	}
+		           	}
+		           	dist[ G->vl[u].vlisthead->data ] = dist[u] + G->vl[ u ].vlisthead->weight;
+		    	}
             }
             G->vl[u].vlisthead = G->vl[u].vlisthead->link;
     	} 
@@ -84,5 +155,7 @@ void dijkstra(Graph *G, int src)
 
   	}
     // print the constructed distance array 
-    printSolution(dist); 
+    printSolution(dist);
+    return path;
+ 
 } 
