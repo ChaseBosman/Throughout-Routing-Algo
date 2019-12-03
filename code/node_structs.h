@@ -13,22 +13,22 @@ struct node
 	int weight;
 	struct node *link;
 
-	int curr_delay(int chance)
+	int curr_delay(int val_in)
 	{
-		srand(time(NULL));
+		srand(time(NULL) * val_in);
 
 		//Delays involving actual measurements that can be analyzed
-		int nodal_processing = rand() % 4;
-		int queue_delay = rand() % 4;
+		int nodal_processing = rand() % 5;
+		int queue_delay = rand() % 5;
 
 
 		//buffer_open helps ensure that current buffer has available space
 		//a 0 simulates no available buffer space
-		bool buffer_open = rand() % 1;
-		if(!buffer_open)
-			return -1;
+		bool buffer_open = rand() % 2;
+		//if(!buffer_open)
+			//return -1;
 
-		int total_delay = (nodal_processing + queue_delay) + 1;
+		int total_delay = (nodal_processing + queue_delay)/2;
 
 		return total_delay;
 		
@@ -38,9 +38,9 @@ struct node
  
 
 // A structure to represent list of vertexes connected to the given vertex.
-struct vertexlist
+struct nodeList
 {
-	struct node *vlisthead;
+	struct node *listhead;
 };
  
 
@@ -48,7 +48,7 @@ struct vertexlist
 struct Graph
 {
 	int v;
-	struct vertexlist *vl; 
+	struct nodeList *vl; 
 };
 
 

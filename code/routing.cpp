@@ -1,6 +1,7 @@
 #include <limits.h> 
 #include <iostream>
 #include <vector>
+#include <unordered_set>
 #include "node_structs.h"
 
 
@@ -48,17 +49,10 @@ vector<int> reorder_sol(int index, int src, int shortest_path[], vector<int> &ne
 	}
 }
   
-// A utility function to print the constructed distance array 
-int printSolution(int dist[]) 
-{ 
-    cout << "Vertex \t\t Distance from Source\n"; 
-    for (int i = 0; i < V; i++) 
-        cout << i << " \t\t" << dist[i] << "\n"; 
-} 
   
 // Function that implements Dijkstra's single source shortest path algorithm 
 // for a graph represented using adjacency matrix representation 
-vector <vector <int> > dijkstra(Graph *G, int src, int *dist) 
+vector <vector <int> > path_finder(Graph *G, int src, int *dist, const unordered_set<int> &delays) 
 { 
 
 	//dist arrays keep shortest and seccond shortest path distances to node n from src
@@ -92,33 +86,36 @@ vector <vector <int> > dijkstra(Graph *G, int src, int *dist)
         // yet processed. u is always equal to src in the first iteration. 
         int u = minDistance(dist, sptSet); 
   
-  		temp_head = G->vl[u].vlisthead;
+  		temp_head = G->vl[u].listhead;
         // Mark the picked vertex as processed 
         sptSet[u] = true; 
         // Update dist value of the adjacent vertices of the picked vertex. 
-        while(G->vl[u].vlisthead != NULL)
+        while(G->vl[u].listhead != NULL)
 		{
             // Update dist[v] only if is not in sptSet, there is an edge from 
             // u to v, and total weight of path from src to  v through u is 
             // smaller than current value of dist[v] 
-            if (!sptSet[ G->vl[u].vlisthead->data ]  &&  G->vl[ u ].vlisthead->weight  &&  dist[u] != INT_MAX) 
+            if (!sptSet[ G->vl[u].listhead->data ]  &&  G->vl[ u ].listhead->weight  &&  dist[u] != INT_MAX) 
             {
+            	unordered_set<int>::const_iterator search_u = delays.find (u);
+            	unordered_set<int>::const_iterator search_data = delays.find (G->vl[ u ].listhead->data);
+
+
             	//check if distance is less than current
-            	if(dist[u]  +  G->vl[ u].vlisthead->weight  <  dist[ G->vl[u].vlisthead->data ])
+            	if(dist[u]  +  G->vl[ u].listhead->weight  <  dist[ G->vl[u].listhead->data ]
+            		&& search_u == delays.end() && search_data == delays.end())
             	{
-		            if(dist[(G->vl[ u ].vlisthead->data)] != INT_MAX)
+		            if(dist[(G->vl[ u ].listhead->data)] != INT_MAX)
 		            {
 		            	//destination's link != src so need to call function to find remaining
 		           		//adds current link and current link -1 to new_path and then appends remaining path to new_path
 		            	vector<int> new_path;
-		           		new_path.push_back(G->vl[ u ].vlisthead->data);
+		           		new_path.push_back(G->vl[ u ].listhead->data);
 		           		new_path.push_back(u);
-		           		short_path[G->vl[ u ].vlisthead->data] = u;
+		           		short_path[G->vl[ u ].listhead->data] = u;
 		           		new_path = reorder_sol(u, src, short_path, new_path, V);
-						path[G->vl[ u ].vlisthead->data].swap(new_path);
-						for(int i = 0; i < path[G->vl[ u ].vlisthead->data].size(); i++)
-							cout << path[G->vl[ u ].vlisthead->data][i];
-						cout << "\n";
+						path[G->vl[ u ].listhead->data].swap(new_path);
+
 		            }
 		            else
 		           	{
@@ -127,35 +124,30 @@ vector <vector <int> > dijkstra(Graph *G, int src, int *dist)
 		           			//destination's link != src so need to call function to find remaining
 		           			//adds current link and current link -1 to new_path and then appends remaining path to new_path
 		           			vector<int> new_path;
-		           			new_path.push_back(G->vl[ u ].vlisthead->data);
+		           			new_path.push_back(G->vl[ u ].listhead->data);
 		           			new_path.push_back(u);
-		           			short_path[G->vl[ u ].vlisthead->data] = u;
+		           			short_path[G->vl[ u ].listhead->data] = u;
 		           			new_path = reorder_sol(u, src, short_path, new_path, V);
-							path[G->vl[ u ].vlisthead->data].swap(new_path);
-
-							for(int i = 0; i < path[G->vl[ u ].vlisthead->data].size(); i++)
-								cout << path[G->vl[ u ].vlisthead->data][i];
-							cout << '\n';
+							path[G->vl[ u ].listhead->data].swap(new_path);
 		           		}
 		           		else
 		           		{
-		           			short_path[G->vl[ u ].vlisthead->data] = u;
-		          			path[G->vl[ u ].vlisthead->data].push_back(G->vl[ u ].vlisthead->data);
-		            		path[G->vl[ u ].vlisthead->data].push_back(u);
-		            		cout << "init "<< u << " " << G->vl[ u ].vlisthead->data << "\n";
+		           			short_path[G->vl[ u ].listhead->data] = u;
+		          			path[G->vl[ u ].listhead->data].push_back(G->vl[ u ].listhead->data);
+		            		path[G->vl[ u ].listhead->data].push_back(u);
 		            	}
 		           	}
-		           	dist[ G->vl[u].vlisthead->data ] = dist[u] + G->vl[ u ].vlisthead->weight;
+		           	dist[ G->vl[u].listhead->data ] = dist[u] + G->vl[ u ].listhead->weight;
 		    	}
             }
-            G->vl[u].vlisthead = G->vl[u].vlisthead->link;
+            G->vl[u].listhead = G->vl[u].listhead->link;
     	} 
 
-        G->vl[u].vlisthead = temp_head;
+        G->vl[u].listhead = temp_head;
 
   	}
     // print the constructed distance array 
-    printSolution(dist);
+    //printSolution(dist);
     return path;
  
 } 
