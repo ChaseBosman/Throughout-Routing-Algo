@@ -1,4 +1,4 @@
-Semester long project involving creating a routing algorithm to maximize throughput.
+Network simulation involving creating a routing algorithm to maximize throughput.
 
 node_structs.h establishes structs to simulate the physical layer.
 
